@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>白海豚大冒險</title>
+<style>
+:root{--sky:#BFE7F2;--sea:#7FCFE0;--sand:#F7DFAF;--sand-dark:#E0BF85;
+--pink:#F79FB5;--pink-deep:#E0708D;--coral:#FF8A6B;--cream:#FFF9F0;--brown:#5B4636;--gold:#F5C542;
+--cjk:"PingFang TC","Noto Sans TC","Microsoft JhengHei","Heiti TC",sans-serif;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#1F6E93;font-family:var(--cjk)}
+body{display:flex;align-items:center;justify-content:center;user-select:none;color:var(--brown)}
+#wrap{position:relative;width:100%;max-width:520px;height:100%;max-height:100dvh;overflow:hidden;background:var(--sea)}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+
+#hud{position:absolute;inset:0;pointer-events:none;padding:calc(env(safe-area-inset-top) + 12px) 14px 14px;display:flex;flex-direction:column;gap:7px}
+.topbar{display:flex;gap:9px;align-items:center}
+#hp{display:flex;align-items:center;gap:4px;background:#FFFFFF80;border-radius:20px;padding:4px 10px 4px 8px;height:26px}
+#hp .lb{font-size:10.5px;font-weight:800;color:var(--brown)}
+#hp .pip{width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 1.5px #fff8;transition:background .2s}
+#hp .pip.off{background:#FFFFFF9C;box-shadow:none}
+#growth{flex:1;background:#FFFFFF80;border-radius:20px;height:26px;position:relative;overflow:hidden}
+#growthFill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--pink);border-radius:20px;transition:width .3s}
+#growthTxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+#journey{background:#FFFFFF66;border-radius:20px;height:7px;position:relative;overflow:hidden}
+#journeyFill{position:absolute;left:0;top:0;bottom:0;width:0;background:#FFF;border-radius:20px}
+
+#place{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 74px);transform:translateX(-50%);
+background:rgba(91,70,54,.62);backdrop-filter:blur(4px);color:#FFF7EA;border-radius:16px;padding:7px 16px;
+font-size:13px;font-weight:800;white-space:nowrap;opacity:0;transition:opacity .4s}
+#place.show{opacity:1}
+#place.zone{background:rgba(37,120,90,.75)}
+
+#alert{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 108px);transform:translateX(-50%);
+background:rgba(232,69,47,.8);backdrop-filter:blur(4px);color:#fff;border-radius:16px;padding:8px 18px;
+font-size:13.5px;font-weight:800;white-space:nowrap;opacity:0;transition:opacity .16s;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+#alert.show{opacity:1;animation:nz .3s infinite}
+@keyframes nz{50%{transform:translateX(-50%) scale(1.06)}}
+
+#bubbleRing{position:absolute;right:16px;bottom:calc(env(safe-area-inset-bottom) + 20px);width:98px;height:98px;pointer-events:auto}
+#airArc{position:absolute;inset:0;pointer-events:none}
+#bubbleBtn{width:98px;height:98px;border-radius:50%;border:none;background:var(--cream);
+box-shadow:0 5px 0 var(--sand-dark),0 8px 16px rgba(0,0,0,.18);font-family:var(--cjk);font-size:14px;font-weight:800;color:var(--brown);
+display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.25}
+#bubbleBtn span{font-size:25px}
+#bubbleBtn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--sand-dark)}
+#bubbleBtn.urgent{background:#FFD9CE;color:#C1341F;animation:wob .45s infinite}
+#bubbleBtn.blocked{background:#E2D9CD;color:#A2957F}
+@keyframes wob{50%{transform:scale(1.07)}}
+#hint{position:absolute;inset:-22px;pointer-events:none;opacity:0;transition:opacity .3s}
+#hint.on{opacity:1}
+#hint .ring{position:absolute;inset:22px;border-radius:50%;border:3px solid var(--coral);animation:ring 1.3s infinite}
+#hint .ring.d{animation-delay:.65s}
+@keyframes ring{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.55);opacity:0}}
+#hint .fing{position:absolute;left:-46px;top:34px;font-size:30px;animation:poke 1.1s infinite}
+@keyframes poke{0%,100%{transform:translate(0,0)}50%{transform:translate(16px,6px)}}
+#hint .lbl{position:absolute;left:-136px;top:-6px;background:var(--coral);color:#fff;font-size:12.5px;font-weight:800;
+padding:6px 12px;border-radius:14px;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.2)}
+
+#tip{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 132px);transform:translateX(-50%) translateY(8px);
+background:rgba(255,249,240,.78);backdrop-filter:blur(6px);border-radius:20px;padding:10px 18px;max-width:86%;
+font-size:14px;font-weight:700;line-height:1.5;text-align:center;color:#4A382B;white-space:nowrap;
+box-shadow:0 6px 18px rgba(0,0,0,.15);opacity:0;transition:opacity .22s,transform .22s cubic-bezier(.3,1.5,.5,1);pointer-events:none}
+#tip.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#tip .em{color:#C9426B}
+#tip.say{background:rgba(255,239,214,.85);white-space:normal;max-width:80%}
+#tip .who{display:block;font-size:11px;font-weight:800;color:#A97E4E;margin-bottom:3px}
+
+#count{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+background:rgba(31,110,147,.35);backdrop-filter:blur(2px);font-size:96px;font-weight:900;color:#fff;
+text-shadow:0 6px 24px rgba(0,0,0,.35);pointer-events:none}
+#count.on{display:flex}
+#count b{animation:pop .9s ease-out}
+@keyframes pop{0%{transform:scale(2.2);opacity:0}30%{transform:scale(1);opacity:1}100%{transform:scale(.85);opacity:.5}}
+
+.screen{position:absolute;inset:0;background:linear-gradient(180deg,var(--sky),var(--sea));display:block;
+padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 30px);
+overflow-y:auto;-webkit-overflow-scrolling:touch;text-align:center}
+.screen.hidden{display:none}
+.card{background:var(--cream);border-radius:28px;padding:24px 18px;box-shadow:0 6px 0 var(--sand-dark),0 14px 30px rgba(0,0,0,.15)}
+h1{font-size:28px;line-height:1.28}h1 .pk{color:var(--pink-deep)}
+.story{margin-top:14px;font-size:13.5px;line-height:1.95;text-align:left;background:#EAF6F2;border-radius:18px;padding:14px 15px}
+.story .em{color:#1E7A5C;font-weight:800}
+.sub{font-size:14px;line-height:1.8;margin-top:12px}.sub .em{color:var(--pink-deep);font-weight:800}
+.how{margin-top:14px;text-align:left;font-size:14px;line-height:2.05;background:#FFF1DE;border-radius:18px;padding:14px 15px}
+.how b{display:inline-block;width:28px}
+.goBtn{margin-top:18px;width:100%;padding:17px;border:none;border-radius:20px;background:var(--coral);color:#fff;
+font-family:var(--cjk);font-size:17px;font-weight:800;letter-spacing:.12em;box-shadow:0 5px 0 #D9694E}
+.goBtn:active{transform:translateY(4px);box-shadow:0 1px 0 #D9694E}
+.acts{margin-top:16px;display:flex;flex-direction:column;gap:9px}
+.lnk{display:flex;align-items:center;gap:10px;text-decoration:none;border-radius:18px;padding:13px 15px;
+font-size:14px;font-weight:800;line-height:1.35;text-align:left}
+.lnk .ic{font-size:19px;flex:0 0 auto}
+.lnk .tx{flex:1}
+.lnk .tx small{display:block;font-size:11px;font-weight:700;opacity:.75;margin-top:2px}
+.lnk .go{font-size:15px;opacity:.6}
+.lnk:active{transform:translateY(2px)}
+.lnk1{background:#E8452F;color:#fff;box-shadow:0 4px 0 #B8331F}
+.lnk2{background:#fff;color:#4A382B;border:2px solid #E0BF85}
+.actHd{margin-top:20px;font-size:13px;font-weight:900;color:#8B7A69;letter-spacing:.08em}
+.tally{margin-top:14px;font-size:13px;line-height:2;background:#FFF1DE;border-radius:18px;padding:12px 16px;text-align:left}
+.tally i{font-style:normal;float:right;font-weight:800}
+
+/* 結果頁知識卡 */
+.kb{margin-top:12px;text-align:left;border-radius:20px;padding:15px 16px}
+.kb .h{font-weight:900;font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.kb ul{list-style:none;font-size:13.5px;line-height:1.7}
+.kb li{position:relative;padding-left:15px;margin-bottom:7px}
+.kb li:last-child{margin-bottom:0}
+.kb li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%}
+.kb b{font-weight:900}
+.kb1{background:#FFEFF3}.kb1 .h{color:#C9426B}.kb1 li::before{background:#F79FB5}.kb1 b{color:#C9426B}
+.kb2{background:#E7F3FA}.kb2 .h{color:#1F6E93}.kb2 li::before{background:#6BC6DE}.kb2 b{color:#1F6E93}
+.kb3{background:#FFF0E6}.kb3 .h{color:#C1341F}.kb3 li::before{background:#FF8A6B}.kb3 b{color:#C1341F}
+.big{margin-top:10px;background:#fff;border-radius:14px;padding:9px 12px;font-size:13px;font-weight:900;color:#C9426B;text-align:center}
+.src{font-size:10.5px;line-height:1.8;color:#8B7A69;margin-top:14px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="wrap">
+<canvas id="c"></canvas>
+<div id="hud">
+  <div class="topbar">
+    <div id="hp"><span class="lb">體力</span></div>
+    <div id="growth"><div id="growthFill"></div><div id="growthTxt">幼豚</div></div>
+  </div>
+  <div id="journey"><div id="journeyFill"></div></div>
+</div>
+<div id="place"></div>
+<div id="alert"></div>
+<div id="bubbleRing">
+  <svg id="airArc" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="45" fill="none" stroke="#ffffff70" stroke-width="6"/>
+    <circle id="airCircle" cx="50" cy="50" r="45" fill="none" stroke="#5BC8E8" stroke-width="6" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+  </svg>
+  <button id="bubbleBtn"><span>💨</span>呼吸</button>
+  <div id="hint">
+    <div class="ring"></div><div class="ring d"></div>
+    <div class="fing">👆</div><div class="lbl">點這裡浮上去換氣！</div>
+  </div>
+</div>
+<div id="tip"></div>
+<div id="count"><b>3</b></div>
+
+<div class="screen" id="intro">
+  <div class="card">
+    <h1>白海豚<span class="pk">大冒險</span></h1>
+    <div class="story">
+      你是一隻剛出生的<b>臺灣白海豚</b>，跟著媽媽住在西海岸的淺海裡。<br><br>
+      從<span class="em">苗栗龍鳳漁港</span>到<span class="em">雲林臺西</span>，這一整段是政府劃給白海豚的
+      <span class="em">「重要棲息環境」</span>——有最多的河口和小魚，也有最多的工廠。<br><br>
+      跟著媽媽往南游，一路上要吃飽、換氣、閃開危險。
+    </div>
+    <div class="how">
+      <b>👆</b> 手指上下滑動 → 游上游下<br>
+      <b>💨</b> 點右下角 → 浮上海面換氣<br>
+      <b>🐟</b> 吃小魚 → 長大<br>
+      <b>🟡</b> 吃到黃錫鯛 → 補回體力<br>
+      <b>📏</b> 白海豚<b style="width:auto">不喜歡太深的水域</b>
+    </div>
+    <button class="goBtn" id="startBtn">出發囉</button>
+  </div>
+</div>
+
+<div class="screen hidden" id="over">
+  <div class="card">
+    <h1 id="ovT"></h1><div class="sub" id="ovS"></div>
+    <div class="tally" id="ovL"></div>
+
+    <div class="kb kb1">
+      <div class="h">🐬 白海豚寶寶</div>
+      <ul>
+        <li>要 <b>10～13 歲</b>才能生小孩，懷孕 <b>10～12 個月</b>，一次只生<b>一隻</b>。</li>
+        <li>寶寶要跟著媽媽<b>至少 2 年</b>，一邊喝奶，一邊學會找魚、認路、躲危險，才能自己活下去。</li>
+      </ul>
+      <div class="big">現在不到 50 隻 · 死掉的比生下來的多</div>
+    </div>
+
+    <div class="kb kb2">
+      <div class="h">🌊 和臺灣人共用一片海</div>
+      <ul>
+        <li>只住在離岸 <b>3～5 公里</b>、水深 <b>15～30 公尺</b>的西岸淺海和河口。</li>
+        <li><b>游不遠，也游不深</b>——只有這一片海可以去。</li>
+        <li>同一片海、同樣的空氣和水。<b>牠們的健康，就是我們的健康。</b></li>
+      </ul>
+    </div>
+
+    <div class="kb kb3">
+      <div class="h">🏗 臺中港填海造陸的傷害</div>
+      <ul>
+        <li>覓食的海被直接填成陸地，<b>家一塊一塊變小</b>。</li>
+        <li><b>有毒廢土</b>讓海水變濁、污染擴散，小魚跟著變少。</li>
+        <li>棲地變小 ＋ 食物變少 ＝ 現在<b>最大的難關</b>。</li>
+      </ul>
+    </div>
+
+    <div class="actHd">你可以幫牠做一件事</div>
+    <div class="acts">
+      <a class="lnk lnk1" href="https://forms.gle/EP53e3d9rTYg2j1U7" target="_blank" rel="noopener">
+        <span class="ic">✍️</span>
+        <span class="tx">加入連署 · 搶救極危白海豚<small>只要一分鐘，替牠們留下這片海</small></span>
+        <span class="go">›</span>
+      </a>
+      <a class="lnk lnk2" href="https://www.facebook.com/wildatheart.org?locale=zh_TW" target="_blank" rel="noopener">
+        <span class="ic">🌿</span>
+        <span class="tx">台灣蠻野心足生態協會<small>長期為白海豚棲地打環境訴訟</small></span>
+        <span class="go">›</span>
+      </a>
+      <a class="lnk lnk2" href="https://www.facebook.com/matzufish?locale=zh_TW" target="_blank" rel="noopener">
+        <span class="ic">🛕</span>
+        <span class="tx">台灣白海豚媽祖宮 · 粘錫麟紀念館<small>在地守護「媽祖魚」的行動基地</small></span>
+        <span class="go">›</span>
+      </a>
+    </div>
+
+    <button class="goBtn" id="againBtn">再玩一次</button>
+    <div class="src">資料來源：海洋委員會海洋保育署、林業保育署「中華白海豚野生動物重要棲息環境」（2020 年 9 月 1 日生效，範圍涵括苗栗、臺中、彰化、雲林，面積 763 平方公里）；《臺灣白海豚保育學堂》手冊。</div>
+  </div>
+</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),wrap=document.getElementById('wrap');
+let W,H,DPR;
+function resize(){DPR=Math.min(devicePixelRatio||1,2);W=wrap.clientWidth;H=wrap.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+addEventListener('resize',resize);resize();
+const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
+const PX=()=>W*.28, FF=()=>'"PingFang TC","Noto Sans TC",sans-serif';
+
+const SEG=2200;
+const ZONES=[
+ {n:'苗栗 · 龍鳳漁港',k:'port',hab:'in'},
+ {n:'苗栗 · 後龍溪口',k:'river'},
+ {n:'臺中 · 大甲溪口 · 高美濕地',k:'river'},
+ {n:'臺中港 · 填海造陸工程',k:'ind',big:true},
+ {n:'彰化 · 大肚溪口保護區',k:'river'},
+ {n:'彰化 · 彰濱工業區',k:'ind'},
+ {n:'彰化 · 濁水溪口',k:'river'},
+ {n:'雲林 · 麥寮六輕',k:'ind'},
+ {n:'雲林 · 臺西海岸',k:'wet'}];
+const GOAL=SEG*ZONES.length, MAXD=38, SAFE=30, DEEP_TRIG=34, DEEP_LIMIT=6;
+const TH=[0,150,200], STAGES=['幼豚','少年豚','成年豚'], MAXHP=5;
+const PILE_R=250, PILE_EXT=.17;
+
+const S={};
+function reset(){Object.assign(S,{
+  run:false,dist:0,spd:92,y:.45,life:MAXHP,inv:0,air:1,
+  fish:0,gold:0,stage:0,deepTime:0,landT:0,fillPass:0,noiseSec:0,plasticHit:0,netHit:0,propHit:0,
+  land:.14,landTgt:.14,deep:.88,murk:0,murkTgt:0,
+  obs:[],hazT:2,fishT:1.2,fillT:8,pileT:11,goldT:14,pops:[],bub:[],spray:[],sonar:[],sonarT:0,
+  zone:-1,phase:'tut',tut:0,tutT:0,moved:false,shake:0,
+  surf:null,noise:0,tutTotal:0,jitter:0,breathed:false
+});for(let i=0;i<22;i++)S.bub.push({x:Math.random()*W,y:Math.random()*H,r:1+Math.random()*3,s:7+Math.random()*12});}
+reset();
+
+let drag=null;
+cv.addEventListener('pointerdown',e=>{drag={y:e.clientY,by:S.y};});
+cv.addEventListener('pointermove',e=>{
+  if(!drag||!S.run||S.surf)return;
+  const ny=clamp(drag.by+(e.clientY-drag.y)/H,0,1);
+  if(Math.abs(ny-S.y)>.004)S.moved=true;S.y=ny;});
+['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,()=>drag=null));
+document.getElementById('bubbleBtn').addEventListener('pointerdown',e=>{e.preventDefault();breathe();});
+
+const tipEl=document.getElementById('tip');let tipT=0,tipKey='';
+function tip(h,d,say){
+  if(tipKey===h&&tipT>0)return;
+  tipKey=h;tipEl.innerHTML=(say?'<span class="who">🎙 政府發言人（虛構）</span>':'')+h;
+  tipEl.classList.toggle('say',!!say);tipEl.classList.add('show');tipT=d||2.4;}
+function hideTip(){tipT=0;tipKey='';tipEl.classList.remove('show');}
+const placeEl=document.getElementById('place');let placeT=0;
+const alertEl=document.getElementById('alert');
+function showAlert(t){alertEl.textContent=t;alertEl.classList.add('show');}
+function hideAlert(){alertEl.classList.remove('show');}
+const hintEl=document.getElementById('hint');
+
+function surfaceY(){return S.land+.045;}
+function blockedAbove(){const px=PX();
+  return S.obs.some(o=>(o.t==='fill'||o.t==='pile')&&px+16>o.x&&px-16<o.x+o.w);}
+function breathe(){
+  if(!S.run||S.surf)return;
+  if(S.noise>0){tip('太吵了，不敢浮上去',2);return;}
+  if(blockedAbove()){tip('上面被擋住了',2);return;}
+  S.surf={ph:0,t:0,from:S.y};S.breathed=true;hintEl.classList.remove('on');
+  if(S.phase==='tut')S.tut=99;
+}
+
+function corridorY(m){return clamp(depthToY(m),S.land+.07,S.deep-.07);}
+function fishY(z){return z==='river'?corridorY(8+Math.random()*8):corridorY(6+Math.random()*20);}
+function laneY(){return S.land+.10+Math.random()*(S.deep-S.land-.20);}
+function spawnSchool(n,z){
+  const c=n||(5+Math.floor(Math.random()*5)),b=fishY(z||'wet'),amp=.018+Math.random()*.022,ph=Math.random()*6;
+  for(let i=0;i<c;i++){const col=Math.floor(i/2),row=i%2;
+    S.obs.push({t:'fish',x:W+30+col*26+row*12,
+      y:clamp(b+Math.sin(ph+col*.7)*amp+row*.02,S.land+.07,S.deep-.07),w:20,h:.042,ph:Math.random()*6});}
+}
+function spawnGold(){S.obs.push({t:'gold',x:W+40,y:corridorY(10+Math.random()*10),w:30,h:.058,ph:Math.random()*6});}
+function spawnHaz(){
+  const z=ZONES[Math.max(S.zone,0)].k,r=Math.random();
+  let p;
+  if(z==='ind')       p=r<.36?'net':r<.7?'plastic':'boat';
+  else if(z==='port') p=r<.44?'boat':r<.72?'net':'plastic';
+  else                p=r<.4?'net':r<.75?'plastic':'boat';
+  if(p==='net')S.obs.push({t:'net',x:W+50,y:clamp(laneY(),S.land+.06,S.deep-.26),w:22,h:.17,warn:1,ph:Math.random()*6});
+  else if(p==='boat')S.obs.push({t:'boat',x:W+90,y:laneY(),w:74,h:.075,vx:-30,warn:1});
+  else S.obs.push({t:'plastic',x:W+40,y:laneY(),w:34,h:.062,vx:-6,warn:1,ph:Math.random()*6,kind:Math.floor(Math.random()*3)});
+}
+function spawnPile(){S.obs.push({t:'pile',x:W+120,w:104,rings:[],rt:0});tip('⚠️ 前方在打樁，先換好氣',2.4);}
+function spawnFill(big){
+  const base=.09+Math.min(S.dist/GOAL,1)*.12;
+  S.obs.push({t:'fill',x:W+40,w:big?190+Math.random()*80:110+Math.random()*60,
+    ext:big?base+.07:base,warn:1,said:false,big:!!big});
+}
+
+const countEl=document.getElementById('count');
+function countdown(cb){
+  const seq=['3','2','1','出發！'];let i=0;countEl.classList.add('on');
+  const step=()=>{if(i>=seq.length){countEl.classList.remove('on');cb();return;}
+    countEl.innerHTML='<b>'+seq[i]+'</b>';
+    countEl.style.fontSize=(seq[i]==='出發！'?'56px':'96px');i++;setTimeout(step,800);};
+  step();
+}
+
+let last=0;
+requestAnimationFrame(t=>{last=t;requestAnimationFrame(loop);});
+function loop(t){const dt=Math.min((t-last)/1000||0,.05);last=t;if(S.run)update(dt);draw();requestAnimationFrame(loop);}
+
+function update(dt){
+  S.dist+=S.spd*dt;
+  if(S.phase==='play')S.spd=Math.min(92+S.dist*.0016,130);
+  if(S.shake>0)S.shake-=dt;
+  if(tipT>0){tipT-=dt;if(tipT<=0)hideTip();}
+  if(placeT>0){placeT-=dt;if(placeT<=0)placeEl.classList.remove('show');}
+
+  const zi=Math.min(Math.floor(S.dist/SEG),ZONES.length-1);
+  if(zi!==S.zone){S.zone=zi;const z=ZONES[zi];
+    if(z.hab==='in'){placeEl.textContent='🛡 白海豚重要棲息環境';placeEl.classList.add('zone');}
+    else{placeEl.textContent='📍 '+z.n;placeEl.classList.remove('zone');}
+    placeEl.classList.add('show');placeT=3.4;
+    if(z.big){S.landTgt=Math.min(S.landTgt+.07,.32);S.murkTgt=.62;S.shake=.7;S.fillT=2.2;S.pileT=5;
+      tip('臺中港正在<span class="em">填海造陸</span>',2.8);}
+    else if(z.k==='ind'){S.landTgt=Math.min(S.landTgt+.035,.32);S.murkTgt=.55;S.shake=.45;S.pileT=Math.min(S.pileT,4);}
+    else if(z.k==='river'){S.murkTgt=.12;tip('河口！這裡小魚最多',2.2);}
+    else S.murkTgt=.2;}
+  S.land=lerp(S.land,S.landTgt,Math.min(dt*1.4,1));
+  S.murk=lerp(S.murk,S.murkTgt,Math.min(dt*.9,1));
+  document.getElementById('journeyFill').style.width=Math.min(S.dist/GOAL*100,100)+'%';
+
+  if(S.phase==='tut'){
+    S.tutT+=dt;S.tutTotal+=dt;
+    if(S.tut===0){tip('手指<span class="em">上下滑動</span>看看',9);
+      if(S.moved&&S.tutT>1.1){S.tut=1;S.tutT=0;hideTip();spawnSchool(6,'river');}}
+    else if(S.tut===1){if(S.tutT>2.5&&!S.obs.some(o=>o.t==='fish'))spawnSchool(6,'river');
+      if(S.fish>=3){S.tut=2;S.tutT=0;tip('好吃！多吃一點才會長大',2.2);}}
+    else if(S.tut===2){S.fishT-=dt;if(S.fishT<=0){S.fishT=2;spawnSchool(6,'river');}
+      if(S.air<.62){hintEl.classList.add('on');tip('空氣快沒了！',5);}}
+    else{hideTip();hintEl.classList.remove('on');tip('前面開始有危險，小心！',2.2);
+      S.phase='play';S.hazT=1.6;S.fishT=1.5;S.fillT=8;S.pileT=9;S.goldT=12;}
+    if(S.tutTotal>45){S.phase='play';S.hazT=1.6;S.fillT=8;S.pileT=9;}
+  } else {
+    const Z=ZONES[S.zone],z=Z.k;
+    S.fishT-=dt;
+    if(S.fishT<=0){S.fishT=(z==='river'?2:z==='ind'?4:3)+Math.random();
+      spawnSchool(z==='river'?9+Math.floor(Math.random()*5):5+Math.floor(Math.random()*4),z);}
+    S.hazT-=dt;
+    if(S.hazT<=0){S.hazT=(z==='ind'?1.2:1.7)+Math.random()*.9;
+      spawnHaz();if(z==='ind'&&Math.random()<.4)spawnHaz();}
+    S.fillT-=dt;
+    if(S.fillT<=0){S.fillT=Z.big?4.5+Math.random()*2:(z==='ind'?7:11)+Math.random()*4;spawnFill(Z.big);}
+    S.pileT-=dt;
+    if(S.pileT<=0&&!S.obs.some(o=>o.t==='pile')){S.pileT=(Z.big?9:z==='ind'?11:24)+Math.random()*5;spawnPile();}
+    S.goldT-=dt;
+    if(S.goldT<=0){S.goldT=(S.life<MAXHP?12:22)+Math.random()*8;spawnGold();}
+  }
+  if(!S.breathed&&S.air<.6&&!S.surf)hintEl.classList.add('on');
+
+  if(S.surf){
+    const s=S.surf;s.t+=dt;const sy=surfaceY();
+    if(s.ph===0){S.y=lerp(s.from,sy,Math.min(s.t/.5,1));
+      if(s.t>=.5){s.ph=1;s.t=0;S.air=1;
+        for(let i=0;i<10;i++)S.spray.push({x:PX()+14,y:sy*H,vx:20+Math.random()*70,vy:-70-Math.random()*90,a:1});}}
+    else if(s.ph===1){S.y=sy;if(s.t>=.4){s.ph=2;s.t=0;}}
+    else{S.y=lerp(sy,s.from,Math.min(s.t/.5,1));if(s.t>=.5)S.surf=null;}
+  } else S.air-=dt/(S.noise>0?9:32);
+
+  const ac=document.getElementById('airCircle'),C=2*Math.PI*45;
+  ac.style.strokeDasharray=C;ac.style.strokeDashoffset=C*(1-Math.max(S.air,0));
+  const bb=document.getElementById('bubbleBtn'),blk=S.noise>0||blockedAbove();
+  bb.classList.toggle('blocked',blk);bb.classList.toggle('urgent',S.air<.3&&!blk);
+  if(!S.surf&&S.air<.3&&!blk)tip('快換氣！白海豚用<span class="em">肺</span>呼吸',2.4);
+  if(S.air<=0)return end('drown');
+
+  if(!S.surf){
+    if(S.y<S.land+.05){S.y=S.land+.05;S.landT++;
+      if(S.landT===1||S.landT%220===0)tip('太靠岸了',2);}
+    if(depth()>=DEEP_TRIG){
+      S.y=depthToY(DEEP_TRIG);const before=S.deepTime;S.deepTime+=dt;
+      if(before<=0)tip('太深了！白海豚<span class="em">覺得不舒服</span>',2.6);
+      if(S.deepTime>1.2)showAlert('⚠️ 快回淺水！'+Math.max(0,Math.ceil(DEEP_LIMIT-S.deepTime))+' 秒');
+      if(S.deepTime>=DEEP_LIMIT)return end('deep');
+    } else if(depth()<DEEP_TRIG-3){S.deepTime=Math.max(0,S.deepTime-dt*2);
+      if(S.deepTime<=0&&S.noise<=0)hideAlert();
+      if(depth()>SAFE&&Math.random()<dt*.5)tip('白海豚不喜歡太深的水域',2.2);}
+  }
+
+  S.noise=0;
+  const px=PX(),py=S.y*H,pr=15;
+  const fills=S.obs.filter(o=>o.t==='fill');
+  for(let i=S.obs.length-1;i>=0;i--){
+    const o=S.obs[i];o.x+=((o.vx||0)-S.spd)*dt;
+    if(o.warn&&o.x<W-24)o.warn=0;
+    if(o.t==='pile'){
+      o.rt-=dt;
+      if(o.rt<=0&&o.x<W+140&&o.x>-160){o.rt=.62;o.rings.push({r:10,a:1});}
+      for(let k=o.rings.length-1;k>=0;k--){const R=o.rings[k];R.r+=260*dt;R.a-=dt*.34;if(R.a<=0)o.rings.splice(k,1);}
+      const hd=Math.abs(px-(o.x+o.w/2));
+      if(hd<PILE_R)S.noise=Math.max(S.noise,1-hd/PILE_R);
+    }
+    if(o.x<-260){S.obs.splice(i,1);continue;}
+    if((o.t==='fish'||o.t==='gold')&&fills.some(f=>o.x+o.w>f.x-16&&o.x<f.x+f.w+16&&o.y<S.land+f.ext+.02)){
+      S.obs.splice(i,1);continue;}
+
+    let hit,oy,oh;
+    if(o.t==='fill'){oy=0;oh=(S.land+o.ext)*H;
+      hit=px+pr>o.x&&px-pr<o.x+o.w&&py-pr<oh;
+      if(!o.said&&o.x<W*.75){o.said=true;S.fillPass++;
+        if(S.fillPass===1)tip('牠會轉彎啦，自己會<span class="em">繞過去</span>。',3,true);
+        else if(S.fillPass===5)tip('整條海岸都在填 ——<br><span class="em">牠還能繞去哪？</span>',3.2);}
+    } else if(o.t==='pile'){oy=0;oh=(S.land+PILE_EXT)*H;
+      hit=px+pr>o.x&&px-pr<o.x+o.w&&py-pr<oh;}
+    else{oy=o.y*H;oh=o.h*H;hit=px+pr>o.x&&px-pr<o.x+o.w&&py+pr>oy&&py-pr<oy+oh;}
+
+    if(hit){
+      if(o.t==='fish'||o.t==='gold'){
+        if(S.noise>0){tip('太吵了，聲納失效吃不到魚',2);}
+        else if(o.t==='gold'){
+          S.obs.splice(i,1);S.gold++;S.pops.push({x:o.x,y:oy,r:5,a:1,g:1});
+          if(S.life<MAXHP){S.life++;tip('黃錫鯛！<span class="em">體力回復</span>',2.4);}
+          else tip('黃錫鯛！好好吃',2);
+          updHUD();
+        } else {
+          S.obs.splice(i,1);S.fish++;S.pops.push({x:o.x,y:oy,r:4,a:1});
+          const st=S.fish>=TH[2]?2:S.fish>=TH[1]?1:0;
+          if(st>S.stage){S.stage=st;
+            tip(st===1?'長大了！身上長出<span class="em">斑點</span>':'長成<span class="em">大人</span>了！',2.8);}
+          updHUD();
+        }
+      } else if(o.t==='plastic'&&S.noise>0){
+        /* 打樁噪音中：聲納失效，垃圾也吃不到 */
+      } else if(S.inv<=0){
+        S.life--;S.inv=1.5;S.shake=.4;updHUD();
+        if(o.t!=='fill'&&o.t!=='pile')S.obs.splice(i,1);
+        if(o.t==='plastic')S.plasticHit++;
+        if(o.t==='net')S.netHit++;
+        if(o.t==='boat')S.propHit++;
+        if(o.t==='fill')S.y=Math.max(S.y,S.land+o.ext+.06);
+        if(o.t==='pile')S.y=Math.max(S.y,S.land+PILE_EXT+.06);
+        tip(o.t==='net'?'被<span class="em">刺網</span>纏住！':
+            o.t==='boat'?'被<span class="em">螺旋槳</span>割到！':
+            o.t==='plastic'?'誤食<span class="em">塑膠垃圾</span>！':
+            o.t==='pile'?'撞到<span class="em">打樁平台</span>！':'撞上<span class="em">填出來的陸地</span>！',1.8);
+        if(S.life<=0)return end('hurt');
+      }
+    }
+  }
+
+  if(S.noise>.08)showAlert('🔊 打樁噪音！聲納被蓋住了');
+  else if(S.deepTime<=0)hideAlert();
+  if(S.noise>0){
+    S.noiseSec+=dt;S.shake=Math.max(S.shake,.18+S.noise*.5);
+    if(!S.surf){S.jitter=lerp(S.jitter,(Math.random()-.5)*.02*S.noise,.35);S.y=clamp(S.y+S.jitter,0,1);}
+    if(S.noise>.35)tip('聲納失效，牠迷路了',2.2);
+  } else S.jitter=0;
+
+  S.sonarT-=dt;
+  if(S.sonarT<=0){S.sonarT=S.noise>0?.35:1.1;S.sonar.push({r:6,a:1,bad:S.noise>.15});}
+  for(let i=S.sonar.length-1;i>=0;i--){const s=S.sonar[i];s.r+=(s.bad?150:110)*dt;s.a-=dt*(s.bad?1.6:.85);
+    if(s.a<=0)S.sonar.splice(i,1);}
+
+  if(S.inv>0)S.inv-=dt;
+  for(let i=S.pops.length-1;i>=0;i--){const p=S.pops[i];p.r+=70*dt;p.a-=dt*1.7;if(p.a<=0)S.pops.splice(i,1);}
+  for(let i=S.spray.length-1;i>=0;i--){const s=S.spray[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.vy+=260*dt;s.a-=dt*1.3;if(s.a<=0)S.spray.splice(i,1);}
+  S.bub.forEach(b=>{b.y-=b.s*dt;if(b.y<-6){b.y=H+6;b.x=Math.random()*W;}});
+  if(S.dist>=GOAL)return end('home');
+}
+function depth(){return (S.y-S.land)/(S.deep-S.land)*MAXD;}
+function depthToY(m){return S.land+m/MAXD*(S.deep-S.land);}
+function updHUD(){
+  const hp=document.getElementById('hp');hp.innerHTML='<span class="lb">體力</span>';
+  for(let i=0;i<MAXHP;i++){const d=document.createElement('span');
+    d.className='pip'+(i<S.life?'':' off');hp.appendChild(d);}
+  const lo=TH[S.stage],hi=S.stage>=2?TH[2]:TH[S.stage+1];
+  document.getElementById('growthFill').style.width=clamp(S.stage>=2?100:(S.fish-lo)/(hi-lo)*100,0,100)+'%';
+  document.getElementById('growthTxt').textContent=STAGES[S.stage]+'　🐟 '+S.fish+' / '+(S.stage>=2?200:hi);
+}
+
+function draw(){
+  const sh=S.shake>0?(Math.random()-.5)*9*S.shake:0;
+  const sv=S.noise>0?(Math.random()-.5)*6*S.noise:0;
+  ctx.save();ctx.translate(sh,sv);
+  const g=ctx.createLinearGradient(0,S.land*H,0,H);
+  g.addColorStop(0,'#A5E2EF');g.addColorStop(.55,'#6BC6DE');g.addColorStop(1,'#3E9BC0');
+  ctx.fillStyle=g;ctx.fillRect(-10,-10,W+20,H+20);
+  if(S.murk>.02){ctx.fillStyle='rgba(140,150,120,'+(S.murk*.34).toFixed(3)+')';ctx.fillRect(-10,-10,W+20,H+20);}
+  if(ZONES[Math.max(S.zone,0)].k==='river'){
+    const y1=corridorY(6)*H,y2=corridorY(16)*H;
+    const fg=ctx.createLinearGradient(0,y1,0,y2);
+    fg.addColorStop(0,'rgba(180,235,205,0)');fg.addColorStop(.5,'rgba(180,235,205,.28)');
+    fg.addColorStop(1,'rgba(180,235,205,0)');
+    ctx.fillStyle=fg;ctx.fillRect(-10,y1,W+20,y2-y1);
+  }
+  ctx.save();ctx.globalAlpha=.12;ctx.fillStyle='#fff';
+  for(let i=0;i<5;i++){const x=((i*150-S.dist*.3)%(W+300))-150;
+    ctx.beginPath();ctx.moveTo(x,S.land*H);ctx.lineTo(x+38,S.land*H);ctx.lineTo(x+118,H);ctx.lineTo(x+28,H);ctx.closePath();ctx.fill();}
+  ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,.32)';
+  S.bub.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.fill();});
+  drawDeep();drawLand();
+  S.obs.forEach(drawObs);
+  S.pops.forEach(p=>{ctx.strokeStyle=p.g?'rgba(245,197,66,'+p.a.toFixed(2)+')':'rgba(255,255,255,'+p.a.toFixed(2)+')';
+    ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.stroke();});
+  S.spray.forEach(s=>{ctx.fillStyle='rgba(255,255,255,'+s.a.toFixed(2)+')';
+    ctx.beginPath();ctx.arc(s.x,s.y,2.4,0,7);ctx.fill();});
+  drawSonar(PX(),S.y*H);
+  dolphin(PX(),S.y*H);
+  if(S.noise>0){
+    ctx.fillStyle='rgba(255,255,255,'+(S.noise*.3).toFixed(3)+')';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,'+(S.noise*.55).toFixed(2)+')';ctx.lineWidth=1;
+    for(let i=0;i<28;i++){const yy=Math.random()*H;
+      ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(W,yy+(Math.random()-.5)*6);ctx.stroke();}
+    ctx.fillStyle='rgba(232,69,47,'+(S.noise*.14).toFixed(3)+')';ctx.fillRect(0,0,W,H);
+  }
+  ctx.restore();
+  drawGauge();
+}
+function drawSonar(x,y){
+  S.sonar.forEach(s=>{
+    ctx.save();ctx.translate(x+22,y);
+    const a=Math.max(s.a,0);
+    ctx.strokeStyle=s.bad?'rgba(232,69,47,'+(a*.6).toFixed(2)+')':'rgba(255,255,255,'+(a*.55).toFixed(2)+')';
+    ctx.lineWidth=2;
+    if(s.bad){for(let k=0;k<3;k++){const off=(Math.random()-.5)*.5;
+      ctx.beginPath();ctx.arc(0,0,s.r+k*3,-0.55+off,0.55+off);ctx.stroke();}}
+    else{for(let k=0;k<2;k++){ctx.beginPath();ctx.arc(0,0,s.r+k*7,-0.5,0.5);ctx.stroke();}}
+    ctx.restore();
+  });
+}
+function drawDeep(){
+  const dy=S.deep*H;
+  ctx.fillStyle='#2C82AC';ctx.fillRect(-10,dy,W+20,H-dy+16);
+  ctx.fillStyle='#1F6E93';ctx.beginPath();ctx.moveTo(-10,dy);
+  for(let x=-10;x<W+20;x+=28)ctx.quadraticCurveTo(x+14,dy-10,x+28,dy);
+  ctx.lineTo(W+20,H+16);ctx.lineTo(-10,H+16);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.62)';ctx.font='700 12px '+FF();ctx.textAlign='center';
+  ctx.fillText('太深囉 · 白海豚覺得不舒服',W/2,dy+28);ctx.textAlign='left';
+}
+function rrect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function rrectP(x,y,w,h,r){ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function drawLand(){
+  const ly=S.land*H;
+  ctx.fillStyle='#F7DFAF';ctx.fillRect(-10,-10,W+20,ly+10);
+  ctx.fillStyle='#E7CD9A';ctx.beginPath();ctx.moveTo(-10,ly);
+  for(let x=-10;x<W+20;x+=32)ctx.quadraticCurveTo(x+16,ly+7,x+32,ly);
+  ctx.lineTo(W+20,-10);ctx.lineTo(-10,-10);ctx.fill();
+  for(let i=0;i<ZONES.length;i++){
+    const sx=PX()+(i*SEG-S.dist);
+    if(sx>W+80||sx+SEG<-80)continue;
+    const z=ZONES[i];drawSkyline(z.k,sx,Math.min(sx+SEG,W+40),ly);
+    if(sx>-360&&sx<W){ctx.save();ctx.font='800 11px '+FF();
+      const tw=ctx.measureText(z.n).width,bx=clamp(sx+14,8,W-tw-24);
+      ctx.fillStyle='rgba(91,70,54,.62)';rrect(bx,ly-24,tw+16,17,8);ctx.fill();
+      ctx.fillStyle='#FFF6E8';ctx.fillText(z.n,bx+8,ly-11.5);ctx.restore();}
+  }
+}
+function drawSkyline(kind,x0,x1,ly){
+  const step=64;
+  for(let x=Math.floor(x0/step)*step;x<x1;x+=step){
+    if(x<-70||x>W+70)continue;
+    const seed=Math.abs(Math.sin(x*.021))*1000%1;
+    if(kind==='ind'){const bh=ly*.42+seed*ly*.2,bw=24;
+      ctx.fillStyle='#C9A97A';ctx.fillRect(x,ly-bh-6,bw,bh);ctx.fillRect(x+bw*.32,ly-bh-24,6,20);
+      ctx.fillStyle='rgba(255,255,255,.6)';
+      ctx.beginPath();ctx.arc(x+bw*.32+3,ly-bh-30,7,0,7);ctx.fill();
+      ctx.beginPath();ctx.arc(x+bw*.32+9,ly-bh-38,5,0,7);ctx.fill();}
+    else if(kind==='port'){ctx.strokeStyle='#C9A97A';ctx.lineWidth=4;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(x+8,ly-6);ctx.lineTo(x+8,ly-ly*.4);ctx.lineTo(x+34,ly-ly*.4+8);ctx.stroke();
+      ctx.fillStyle='#C9A97A';ctx.fillRect(x+2,ly-14,26,8);}
+    else if(kind==='river'){ctx.fillStyle='#8FD4B0';
+      for(let k=0;k<3;k++){ctx.beginPath();ctx.arc(x+10+k*18,ly-9,8+seed*4,0,7);ctx.fill();}
+      ctx.fillStyle='rgba(150,210,180,.5)';
+      ctx.beginPath();ctx.moveTo(x+16,ly);ctx.lineTo(x+42,ly);ctx.lineTo(x+52,ly+26);ctx.lineTo(x+6,ly+26);ctx.fill();}
+    else{ctx.strokeStyle='#B9D98C';ctx.lineWidth=2.4;ctx.lineCap='round';
+      for(let k=0;k<7;k++){const gx=x+k*8+4;
+        ctx.beginPath();ctx.moveTo(gx,ly-4);ctx.quadraticCurveTo(gx+3,ly-13,gx+1+seed*4,ly-19);ctx.stroke();}
+      ctx.fillStyle='#F3E2B8';
+      for(let k=0;k<3;k++){ctx.beginPath();ctx.ellipse(x+12+k*20,ly-3,9,4,0,0,7);ctx.fill();}}
+  }
+}
+function drawObs(o){
+  const T=performance.now()/1000;
+  if(o.warn&&o.t!=='fill'&&o.t!=='pile'){ctx.fillStyle='#FF8A6B';
+    const wy=o.y*H+o.h*H/2;
+    ctx.beginPath();ctx.moveTo(W-8,wy);ctx.lineTo(W-21,wy-9);ctx.lineTo(W-21,wy+9);ctx.fill();}
+  if(o.t==='fill'){
+    const bot=(S.land+o.ext)*H;
+    ctx.fillStyle='#F7DFAF';ctx.beginPath();ctx.moveTo(o.x-16,-10);ctx.lineTo(o.x-16,S.land*H);
+    ctx.quadraticCurveTo(o.x+4,bot-8,o.x+22,bot-4);ctx.lineTo(o.x+o.w-22,bot-4);
+    ctx.quadraticCurveTo(o.x+o.w-4,bot-8,o.x+o.w+16,S.land*H);ctx.lineTo(o.x+o.w+16,-10);ctx.closePath();ctx.fill();
+    ctx.fillStyle=o.big?'#D9B478':'#E0BF85';ctx.beginPath();ctx.moveTo(o.x-16,S.land*H);
+    ctx.quadraticCurveTo(o.x+4,bot-8,o.x+22,bot-4);ctx.lineTo(o.x+o.w-22,bot-4);
+    ctx.quadraticCurveTo(o.x+o.w-4,bot-8,o.x+o.w+16,S.land*H);
+    ctx.lineTo(o.x+o.w+16,S.land*H-9);ctx.lineTo(o.x-16,S.land*H-9);ctx.closePath();ctx.fill();
+    if(o.big){ctx.fillStyle='rgba(150,130,90,.28)';
+      ctx.beginPath();ctx.ellipse(o.x+o.w/2,bot+10,o.w*.55,20,0,0,7);ctx.fill();}
+    ctx.fillStyle='#A89680';
+    for(let k=0;k<Math.floor(o.w/26);k++){const bx=o.x+14+k*26;
+      ctx.save();ctx.translate(bx,bot-3);
+      for(let a=0;a<3;a++){ctx.rotate(2.1);ctx.beginPath();rrectP(-2.6,-9,5.2,9,2.4);ctx.fill();}
+      ctx.restore();}
+    for(let k=0;k<Math.floor(o.w/44);k++){const bx=o.x+10+k*44,bh=18+((k*37)%14);
+      ctx.fillStyle='#C9A97A';ctx.fillRect(bx,S.land*H-bh-4,26,bh);ctx.fillRect(bx+8,S.land*H-bh-20,6,17);
+      ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(bx+11,S.land*H-bh-26,6,0,7);ctx.fill();}
+    ctx.fillStyle='rgba(255,138,107,.95)';ctx.font='800 11px '+FF();ctx.textAlign='center';
+    ctx.fillText(o.big?'臺中港 · 填海造陸':'填海造陸',o.x+o.w/2,bot+16);ctx.textAlign='left';return;
+  }
+  if(o.t==='pile'){
+    const cx=o.x+o.w/2,bot=(S.land+PILE_EXT)*H,deck=S.land*H;
+    o.rings.forEach(R=>{
+      ctx.strokeStyle='rgba(255,255,255,'+(R.a*.85).toFixed(2)+')';ctx.lineWidth=4;
+      ctx.beginPath();ctx.arc(cx,bot,R.r,0,7);ctx.stroke();
+      ctx.strokeStyle='rgba(232,69,47,'+(R.a*.5).toFixed(2)+')';ctx.lineWidth=1.8;
+      ctx.beginPath();ctx.arc(cx,bot,R.r-8,0,7);ctx.stroke();});
+    ctx.fillStyle='#6E6252';ctx.fillRect(cx-7,deck-10,14,bot-deck+8);
+    ctx.strokeStyle='#7C6B58';ctx.lineWidth=5;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(o.x+12,deck-6);ctx.lineTo(cx-6,bot-4);
+    ctx.moveTo(o.x+o.w-12,deck-6);ctx.lineTo(cx+6,bot-4);ctx.stroke();
+    ctx.fillStyle='#8C7A62';ctx.fillRect(o.x,deck-26,o.w,16);
+    const punch=Math.abs(Math.sin(T*4.2))*10;
+    ctx.fillStyle='#4E5B63';ctx.fillRect(cx-5,deck-74,10,48);
+    ctx.fillStyle='#E8452F';ctx.fillRect(cx-12,deck-58+punch,24,20);
+    ctx.fillStyle='#FFF';ctx.font='800 12px '+FF();ctx.textAlign='center';
+    ctx.fillText('🔊 打樁中',cx,deck-82);ctx.textAlign='left';return;
+  }
+  const y=o.y*H,h=o.h*H;
+  if(o.t==='fish'||o.t==='gold'){
+    const bob=Math.sin(T*3+o.ph)*2,G=o.t==='gold';
+    ctx.save();ctx.translate(o.x+(G?14:10),y+h/2+bob);
+    if(S.noise>0)ctx.globalAlpha=.45;
+    if(G){const sc=1+Math.sin(T*4+o.ph)*.06;ctx.scale(sc,sc);
+      ctx.strokeStyle='rgba(245,197,66,.5)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(0,0,17,0,7);ctx.stroke();}
+    ctx.fillStyle=G?'#F5C542':'#F2FAFF';ctx.strokeStyle=G?'#B8860B':'#1E5A78';ctx.lineWidth=1.7;
+    const s=G?1.4:1;
+    ctx.beginPath();ctx.moveTo(10*s,0);ctx.quadraticCurveTo(2*s,-6*s,-6*s,-3*s);
+    ctx.quadraticCurveTo(-10*s,0,-6*s,3*s);ctx.quadraticCurveTo(2*s,6*s,10*s,0);ctx.fill();ctx.stroke();
+    if(!G)ctx.fillStyle='#FF7F5C';
+    ctx.beginPath();ctx.moveTo(-6*s,0);ctx.lineTo(-13*s,-4.5*s);ctx.lineTo(-13*s,4.5*s);ctx.closePath();ctx.fill();ctx.stroke();
+    if(!G){ctx.fillStyle='#FF7F5C';ctx.beginPath();ctx.moveTo(0,-4.4);ctx.lineTo(4,-7.4);ctx.lineTo(6,-3.8);ctx.closePath();ctx.fill();}
+    if(G){ctx.fillStyle='#E8A317';ctx.beginPath();ctx.moveTo(0,-4.2);ctx.lineTo(4,-8);ctx.lineTo(6,-4);ctx.closePath();ctx.fill();}
+    ctx.fillStyle='#5B4636';ctx.beginPath();ctx.arc(5*s,-1.3*s,1.4*s,0,7);ctx.fill();
+    ctx.restore();
+    if(G){ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='800 10px '+FF();ctx.textAlign='center';
+      ctx.fillText('黃錫鯛',o.x+14,y-8);ctx.textAlign='left';}
+    return;
+  }
+  if(o.t==='net'){
+    const sway=Math.sin(T*1.4+o.ph)*3;
+    ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=1;
+    const cols=4,rows=Math.max(4,Math.round(h/9));
+    for(let r=0;r<=rows;r++){const yy=y+h*r/rows,off=Math.sin(T*1.4+o.ph+r*.4)*3;
+      ctx.beginPath();ctx.moveTo(o.x+off,yy);ctx.lineTo(o.x+o.w+off,yy);ctx.stroke();}
+    for(let c=0;c<=cols;c++){ctx.beginPath();
+      for(let r=0;r<=rows;r++){const yy=y+h*r/rows,off=Math.sin(T*1.4+o.ph+r*.4)*3,xx=o.x+o.w*c/cols+off;
+        r===0?ctx.moveTo(xx,yy):ctx.lineTo(xx,yy);}ctx.stroke();}
+    ctx.strokeStyle='#F2F2F2';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(o.x-4+sway,y-2);ctx.lineTo(o.x+o.w+4+sway,y-2);ctx.stroke();
+    ctx.fillStyle='#FF8A6B';
+    for(let c=0;c<=2;c++){ctx.beginPath();ctx.arc(o.x+o.w*c/2+sway,y-2,3.4,0,7);ctx.fill();}
+    const sb=Math.sin(T*1.4+o.ph+rows*.4)*3;
+    ctx.strokeStyle='#7C6B58';ctx.lineWidth=2.4;
+    ctx.beginPath();ctx.moveTo(o.x-3+sb,y+h+2);ctx.lineTo(o.x+o.w+3+sb,y+h+2);ctx.stroke();return;
+  }
+  if(o.t==='boat'){
+    const cy=y+h/2;ctx.save();
+    ctx.fillStyle='rgba(255,255,255,.5)';
+    for(let k=0;k<9;k++){const wx=o.x+o.w+6+k*11,ww=3+k*1.3;ctx.globalAlpha=.42-k*.04;
+      ctx.beginPath();ctx.ellipse(wx,cy+Math.sin(T*7+k)*2,ww,ww*.62,0,0,7);ctx.fill();}
+    ctx.globalAlpha=1;
+    ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(o.x-2,cy);ctx.lineTo(o.x-16,cy-14);ctx.moveTo(o.x-2,cy);ctx.lineTo(o.x-16,cy+14);ctx.stroke();
+    ctx.fillStyle='#8C6E52';ctx.beginPath();ctx.moveTo(o.x,cy);
+    ctx.quadraticCurveTo(o.x+o.w*.35,y-1,o.x+o.w*.86,y+1);
+    ctx.lineTo(o.x+o.w,y+2.5);ctx.lineTo(o.x+o.w,y+h-2.5);ctx.lineTo(o.x+o.w*.86,y+h-1);
+    ctx.quadraticCurveTo(o.x+o.w*.35,y+h+1,o.x,cy);ctx.fill();
+    ctx.fillStyle='#6E5541';ctx.fillRect(o.x+o.w*.42,y+h*.18,o.w*.3,h*.64);
+    ctx.fillStyle='#FFF3DC';ctx.fillRect(o.x+o.w*.46,y+h*.3,o.w*.1,h*.4);
+    const pxp=o.x+o.w+5;ctx.save();ctx.translate(pxp,cy);ctx.rotate(T*22);
+    ctx.fillStyle='#4E5B63';
+    for(let b=0;b<3;b++){ctx.rotate(Math.PI*2/3);ctx.beginPath();ctx.ellipse(0,-7,3.4,7.5,0,0,7);ctx.fill();}
+    ctx.restore();
+    ctx.fillStyle='#38424A';ctx.beginPath();ctx.arc(pxp,cy,3,0,7);ctx.fill();
+    ctx.strokeStyle='rgba(255,138,107,.75)';ctx.lineWidth=2;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.arc(pxp,cy,12,0,7);ctx.stroke();ctx.setLineDash([]);ctx.restore();return;
+  }
+  if(o.t==='plastic'){
+    const bob=Math.sin(T*1.6+o.ph)*3,rot=Math.sin(T*.8+o.ph)*.3;
+    ctx.save();ctx.translate(o.x+o.w/2,y+h/2+bob);ctx.rotate(rot);
+    if(S.noise>0)ctx.globalAlpha=.4;
+    if(o.kind===0){ctx.fillStyle='rgba(236,246,250,.75)';ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=1.4;
+      ctx.beginPath();ctx.moveTo(-13,-8);ctx.quadraticCurveTo(-4,-14,4,-9);ctx.quadraticCurveTo(14,-4,11,6);
+      ctx.quadraticCurveTo(4,15,-4,10);ctx.quadraticCurveTo(-15,4,-13,-8);ctx.fill();ctx.stroke();
+      ctx.beginPath();ctx.moveTo(-9,-9);ctx.quadraticCurveTo(-7,-15,-2,-13);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(2,-10);ctx.quadraticCurveTo(6,-16,9,-11);ctx.stroke();}
+    else if(o.kind===1){ctx.fillStyle='rgba(210,240,235,.85)';ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=1.3;
+      ctx.beginPath();rrectP(-14,-6,24,12,5);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#7FD0C4';ctx.beginPath();rrectP(10,-3.5,7,7,2);ctx.fill();
+      ctx.fillStyle='#FF8A6B';ctx.beginPath();rrectP(-8,-4,9,8,2);ctx.fill();}
+    else{ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2.2;
+      for(let a=0;a<3;a++)for(let b=0;b<2;b++){ctx.beginPath();ctx.arc(-9+a*9,-4+b*8,4.2,0,7);ctx.stroke();}}
+    ctx.restore();return;
+  }
+}
+function drawGauge(){
+  const x=W-30,top=S.land*H,bot=S.deep*H;
+  ctx.save();
+  ctx.fillStyle='rgba(255,255,255,.26)';rrect(x-5,top,10,bot-top,5);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.5)';
+  const y15=depthToY(15)*H,y30=depthToY(SAFE)*H;
+  rrect(x-5,y15,10,y30-y15,5);ctx.fill();
+  ctx.font='700 9px '+FF();ctx.textAlign='right';
+  [0,15,30].forEach(m=>{const yy=depthToY(m)*H;
+    ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x-8,yy);ctx.lineTo(x-5,yy);ctx.stroke();
+    ctx.fillStyle=m>SAFE?'#FFD9CE':'rgba(255,255,255,.85)';ctx.fillText(m+'m',x-10,yy+3);});
+  ctx.fillStyle=depth()>SAFE?'#FF8A6B':'#FFF';
+  ctx.beginPath();ctx.arc(x,clamp(S.y,0,1)*H,5.5,0,7);ctx.fill();
+  ctx.fillStyle='#FFF';ctx.font='800 11px '+FF();ctx.textAlign='center';
+  ctx.fillText(Math.max(0,Math.round(depth()))+'m',x,top-8);ctx.textAlign='left';ctx.restore();
+}
+function dolphin(x,y){
+  const blink=S.inv>0&&Math.floor(S.inv*12)%2===0,up=!!S.surf;
+  ctx.save();ctx.translate(x,y+Math.sin(performance.now()/280)*3);
+  if(up)ctx.rotate(-.28);
+  if(S.noise>.2)ctx.rotate((Math.random()-.5)*.12*S.noise);
+  ctx.globalAlpha=blink?.4:1;
+  const body=['#A8B6C0','#DDBCC6','#F79FB5'][S.stage],dark=['#8A99A5','#C79CA9','#E0708D'][S.stage];
+  ctx.fillStyle=dark;
+  ctx.beginPath();ctx.moveTo(-16,0);ctx.lineTo(-27,-11);ctx.lineTo(-24,0);ctx.lineTo(-27,11);ctx.closePath();ctx.fill();
+  ctx.fillStyle=body;
+  ctx.beginPath();ctx.moveTo(26,1);ctx.quadraticCurveTo(20,-4,12,-7);
+  ctx.quadraticCurveTo(-4,-13,-18,-6);ctx.quadraticCurveTo(-22,0,-18,6);
+  ctx.quadraticCurveTo(-4,13,12,7);ctx.quadraticCurveTo(20,4,26,1);ctx.fill();
+  ctx.beginPath();ctx.moveTo(-1,-8);ctx.quadraticCurveTo(3,-19,10,-7);ctx.closePath();ctx.fill();
+  ctx.fillStyle=dark;ctx.beginPath();ctx.moveTo(4,5);ctx.quadraticCurveTo(-2,16,8,8);ctx.closePath();ctx.fill();
+  if(S.stage>=1){ctx.fillStyle='rgba(90,120,150,.45)';
+    [[14,-2],[6,3],[-4,-3],[0,6],[-10,1],[18,2]].forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],1.5,0,7);ctx.fill();});}
+  ctx.fillStyle='#3F3128';ctx.beginPath();ctx.arc(17,-2,2.1,0,7);ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(17.7,-2.7,.8,0,7);ctx.fill();
+  ctx.strokeStyle='#3F3128';ctx.lineWidth=1.4;ctx.lineCap='round';
+  ctx.beginPath();
+  if(S.noise>.2){ctx.moveTo(22,4);ctx.quadraticCurveTo(25,2,27,4);}
+  else{ctx.moveTo(22,3);ctx.quadraticCurveTo(25,4.5,27,3);}
+  ctx.stroke();
+  ctx.restore();ctx.globalAlpha=1;
+}
+
+const E={
+ home:{t:'游到雲林臺西了 🎉',s:'你走完了整個<span class="em">重要棲息環境</span>：苗栗、臺中、彰化、雲林這一段海。'},
+ hurt:{t:'體力用完了',s:'真實的白海豚身上，至少<span class="em">三成</span>有漁網或船隻造成的傷口，而且不會復原。'},
+ drown:{t:'沒能浮上來換氣',s:'白海豚不是魚，牠跟人一樣用<span class="em">肺</span>呼吸，一定要浮出海面。'},
+ deep:{t:'在深水待太久了',s:'牠一離開熟悉的淺灘，就找不到食物，也失去方向。'}
+};
+function end(k){
+  S.run=false;const e=E[k];hideAlert();hintEl.classList.remove('on');
+  document.getElementById('ovT').innerHTML=e.t;
+  document.getElementById('ovS').innerHTML=e.s;
+  document.getElementById('ovL').innerHTML=
+    '游到 <i>'+ZONES[Math.max(S.zone,0)].n+'</i><br>吃到的小魚 <i>'+S.fish+' / 200 隻</i><br>'+
+    '吃到黃錫鯛 <i>'+S.gold+' 隻</i><br>長到 <i>'+STAGES[S.stage]+'</i><br>'+
+    '繞過填海造陸 <i>'+S.fillPass+' 次</i><br>泡在打樁噪音裡 <i>'+S.noiseSec.toFixed(0)+' 秒</i><br>'+
+    '被漁網纏住 <i>'+S.netHit+' 次</i><br>被螺旋槳割傷 <i>'+S.propHit+' 次</i><br>'+
+    '吃到塑膠垃圾 <i>'+S.plasticHit+' 次</i>';
+  document.getElementById('over').classList.remove('hidden');
+  hideTip();placeEl.classList.remove('show');
+}
+function start(){
+  reset();updHUD();
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('over').classList.add('hidden');
+  countdown(()=>{S.run=true;});
+}
+document.getElementById('startBtn').onclick=start;
+document.getElementById('againBtn').onclick=start;
+updHUD();
+})();
+</script>
+</body>
+</html>
