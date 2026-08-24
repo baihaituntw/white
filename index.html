@@ -32,18 +32,19 @@ font-size:13px;font-weight:800;white-space:nowrap;opacity:0;transition:opacity .
 #place.show{opacity:1}
 #place.zone{background:rgba(37,120,90,.75)}
 
-#alert{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 108px);transform:translateX(-50%);
-background:rgba(232,69,47,.8);backdrop-filter:blur(4px);color:#fff;border-radius:16px;padding:8px 18px;
-font-size:13.5px;font-weight:800;white-space:nowrap;opacity:0;transition:opacity .16s;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+#alert{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+background:rgba(232,69,47,.86);backdrop-filter:blur(4px);color:#fff;border-radius:18px;padding:12px 22px;
+font-size:15px;font-weight:900;white-space:nowrap;opacity:0;transition:opacity .16s;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 #alert.show{opacity:1;animation:nz .3s infinite}
-@keyframes nz{50%{transform:translateX(-50%) scale(1.06)}}
+@keyframes nz{50%{transform:translate(-50%,-50%) scale(1.06)}}
 
-#bubbleRing{position:absolute;right:16px;bottom:calc(env(safe-area-inset-bottom) + 20px);width:98px;height:98px;pointer-events:auto}
+#bubbleRing{position:absolute;left:16px;bottom:calc(env(safe-area-inset-bottom) + 20px);width:98px;height:98px;pointer-events:auto}
 #airArc{position:absolute;inset:0;pointer-events:none}
 #bubbleBtn{width:98px;height:98px;border-radius:50%;border:none;background:var(--cream);
 box-shadow:0 5px 0 var(--sand-dark),0 8px 16px rgba(0,0,0,.18);font-family:var(--cjk);font-size:14px;font-weight:800;color:var(--brown);
-display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.25}
-#bubbleBtn span{font-size:25px}
+display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2}
+#bubbleBtn span{font-size:24px}
+#bubbleBtn small{font-size:10px;font-weight:800;opacity:.6}
 #bubbleBtn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--sand-dark)}
 #bubbleBtn.urgent{background:#FFD9CE;color:#C1341F;animation:wob .45s infinite}
 #bubbleBtn.blocked{background:#E2D9CD;color:#A2957F}
@@ -53,9 +54,9 @@ display:flex;flex-direction:column;align-items:center;justify-content:center;lin
 #hint .ring{position:absolute;inset:22px;border-radius:50%;border:3px solid var(--coral);animation:ring 1.3s infinite}
 #hint .ring.d{animation-delay:.65s}
 @keyframes ring{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.55);opacity:0}}
-#hint .fing{position:absolute;left:-46px;top:34px;font-size:30px;animation:poke 1.1s infinite}
-@keyframes poke{0%,100%{transform:translate(0,0)}50%{transform:translate(16px,6px)}}
-#hint .lbl{position:absolute;left:-136px;top:-6px;background:var(--coral);color:#fff;font-size:12.5px;font-weight:800;
+#hint .fing{position:absolute;left:124px;top:32px;font-size:30px;animation:poke 1.1s infinite}
+@keyframes poke{0%,100%{transform:translate(0,0)}50%{transform:translate(-16px,0)}}
+#hint .lbl{position:absolute;left:124px;top:-4px;background:var(--coral);color:#fff;font-size:12.5px;font-weight:800;
 padding:6px 12px;border-radius:14px;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.2)}
 
 #tip{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 132px);transform:translateX(-50%) translateY(8px);
@@ -99,6 +100,31 @@ font-size:14px;font-weight:800;line-height:1.35;text-align:left}
 .lnk1{background:#E8452F;color:#fff;box-shadow:0 4px 0 #B8331F}
 .lnk2{background:#fff;color:#4A382B;border:2px solid #E0BF85}
 .actHd{margin-top:20px;font-size:13px;font-weight:900;color:#8B7A69;letter-spacing:.08em}
+
+/* 死因／抵達 過場 */
+#cause{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+background:rgba(18,60,84,.9);backdrop-filter:blur(6px);padding:30px;text-align:center;z-index:20}
+#cause.on{display:flex}
+#cause .cb{max-width:340px;animation:cin .5s cubic-bezier(.2,1.3,.4,1)}
+@keyframes cin{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+#cause .ci{font-size:74px;line-height:1}
+#cause .ct{font-size:27px;font-weight:900;color:#fff;margin-top:14px}
+#cause .cs{font-size:15px;font-weight:700;color:#CFEAF5;margin-top:12px;line-height:1.7}
+#cause .ch{margin-top:26px;font-size:13px;font-weight:800;color:#fff;opacity:.75;animation:bob 1.2s infinite}
+@keyframes bob{50%{transform:translateY(5px)}}
+
+/* 往下滑提示 */
+.scrollHint{margin-top:14px;font-size:13px;font-weight:800;color:#B08A5E;animation:bob 1.4s infinite}
+.shareRow{margin-top:10px;display:flex;flex-direction:column;gap:9px}
+.shBtn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:18px;padding:14px;
+font-family:var(--cjk);font-size:15px;font-weight:800;cursor:pointer}
+.sh1{background:#5BC8E8;color:#fff;box-shadow:0 4px 0 #3FA3C0}
+.sh2{background:#FFE3B0;color:#7A5A2E;box-shadow:0 4px 0 #E0BF85}
+.shBtn:active{transform:translateY(3px);box-shadow:none}
+#shareCanvasWrap{margin-top:12px;display:none}
+#shareCanvasWrap.on{display:block}
+#shareCanvasWrap img{width:100%;border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+#shareCanvasWrap p{font-size:11.5px;color:#8B7A69;margin-top:7px;font-weight:700}
 .tally{margin-top:14px;font-size:13px;line-height:2;background:#FFF1DE;border-radius:18px;padding:12px 16px;text-align:left}
 .tally i{font-style:normal;float:right;font-weight:800}
 
@@ -135,14 +161,20 @@ font-size:14px;font-weight:800;line-height:1.35;text-align:left}
     <circle cx="50" cy="50" r="45" fill="none" stroke="#ffffff70" stroke-width="6"/>
     <circle id="airCircle" cx="50" cy="50" r="45" fill="none" stroke="#5BC8E8" stroke-width="6" stroke-linecap="round" transform="rotate(-90 50 50)"/>
   </svg>
-  <button id="bubbleBtn"><span>💨</span>呼吸</button>
+  <button id="bubbleBtn"><span>💨</span>呼吸<small id="airPct">100%</small></button>
   <div id="hint">
     <div class="ring"></div><div class="ring d"></div>
-    <div class="fing">👆</div><div class="lbl">點這裡浮上去換氣！</div>
+    <div class="fing">👈</div><div class="lbl">點這裡浮上去換氣！</div>
   </div>
 </div>
 <div id="tip"></div>
 <div id="count"><b>3</b></div>
+<div id="cause"><div class="cb">
+  <div class="ci" id="cIcon">💔</div>
+  <div class="ct" id="cTitle"></div>
+  <div class="cs" id="cSub"></div>
+  <div class="ch">點一下看結果 ›</div>
+</div></div>
 
 <div class="screen" id="intro">
   <div class="card">
@@ -156,7 +188,7 @@ font-size:14px;font-weight:800;line-height:1.35;text-align:left}
     <div class="how">
       <b>👆</b> 手指上下滑動 → 游上游下<br>
       <b>💨</b> 點右下角 → 浮上海面換氣<br>
-      <b>🐟</b> 吃小魚 → 長大<br>
+      <b>🐟</b> 吃小魚 → 長大（少年 200 隻 · 大人 350 隻）<br>
       <b>🟡</b> 吃到黃錫鯛 → 補回體力<br>
       <b>📏</b> 白海豚<b style="width:auto">不喜歡太深的水域</b>
     </div>
@@ -168,6 +200,14 @@ font-size:14px;font-weight:800;line-height:1.35;text-align:left}
   <div class="card">
     <h1 id="ovT"></h1><div class="sub" id="ovS"></div>
     <div class="tally" id="ovL"></div>
+
+    <div class="shareRow">
+      <button class="shBtn sh1" id="shareImg">🖼 產生成績圖</button>
+      <button class="shBtn sh2" id="shareLink">🎯 找朋友來挑戰</button>
+    </div>
+    <div id="shareCanvasWrap"><img id="shareImgEl" alt="成績圖"><p>長按圖片即可儲存或分享</p></div>
+
+    <div class="scrollHint">往下滑，看看白海豚的故事 ⌄</div>
 
     <div class="kb kb1">
       <div class="h">🐬 白海豚寶寶</div>
@@ -233,17 +273,17 @@ const PX=()=>W*.28, FF=()=>'"PingFang TC","Noto Sans TC",sans-serif';
 
 const SEG=2200;
 const ZONES=[
- {n:'苗栗 · 龍鳳漁港',k:'port',hab:'in'},
- {n:'苗栗 · 後龍溪口',k:'river'},
- {n:'臺中 · 大甲溪口 · 高美濕地',k:'river'},
- {n:'臺中港 · 填海造陸工程',k:'ind',big:true},
- {n:'彰化 · 大肚溪口保護區',k:'river'},
- {n:'彰化 · 彰濱工業區',k:'ind'},
- {n:'彰化 · 濁水溪口',k:'river'},
- {n:'雲林 · 麥寮六輕',k:'ind'},
- {n:'雲林 · 臺西海岸',k:'wet'}];
+ {n:'苗栗 · 龍鳳漁港',k:'port',hab:'in',land:.15},
+ {n:'苗栗 · 後龍溪口',k:'river',land:.19},
+ {n:'臺中 · 大甲溪口 · 高美濕地',k:'river',land:.23},
+ {n:'臺中港 · 填海造陸工程',k:'ind',big:true,land:.36},
+ {n:'彰化 · 大肚溪口保護區',k:'river',land:.30},
+ {n:'彰化 · 彰濱工業區',k:'ind',land:.33},
+ {n:'彰化 · 濁水溪口',k:'river',land:.29},
+ {n:'雲林 · 麥寮六輕',k:'ind',land:.32},
+ {n:'雲林 · 臺西海岸',k:'wet',land:.28}];
 const GOAL=SEG*ZONES.length, MAXD=38, SAFE=30, DEEP_TRIG=34, DEEP_LIMIT=6;
-const TH=[0,150,200], STAGES=['幼豚','少年豚','成年豚'], MAXHP=5;
+const TH=[0,200,350], STAGES=['幼豚','少年豚','成年豚'], MAXHP=5;
 const PILE_R=250, PILE_EXT=.17;
 
 const S={};
@@ -286,7 +326,7 @@ function breathe(){
   if(S.noise>0){tip('太吵了，不敢浮上去',2);return;}
   if(blockedAbove()){tip('上面被擋住了',2);return;}
   S.surf={ph:0,t:0,from:S.y};S.breathed=true;hintEl.classList.remove('on');
-  if(S.phase==='tut')S.tut=99;
+  if(S.phase==='tut'&&S.tut===1){S.tut=2;S.tutT=0;spawnSchool(6,'river');}
 }
 
 function corridorY(m){return clamp(depthToY(m),S.land+.07,S.deep-.07);}
@@ -301,12 +341,8 @@ function spawnSchool(n,z){
 function spawnGold(){S.obs.push({t:'gold',x:W+40,y:corridorY(10+Math.random()*10),w:30,h:.058,ph:Math.random()*6});}
 function spawnHaz(){
   const z=ZONES[Math.max(S.zone,0)].k,r=Math.random();
-  let p;
-  if(z==='ind')       p=r<.36?'net':r<.7?'plastic':'boat';
-  else if(z==='port') p=r<.44?'boat':r<.72?'net':'plastic';
-  else                p=r<.4?'net':r<.75?'plastic':'boat';
+  const p=(z==='ind')?(r<.55?'net':'plastic'):(r<.48?'net':'plastic');
   if(p==='net')S.obs.push({t:'net',x:W+50,y:clamp(laneY(),S.land+.06,S.deep-.26),w:22,h:.17,warn:1,ph:Math.random()*6});
-  else if(p==='boat')S.obs.push({t:'boat',x:W+90,y:laneY(),w:74,h:.075,vx:-30,warn:1});
   else S.obs.push({t:'plastic',x:W+40,y:laneY(),w:34,h:.062,vx:-6,warn:1,ph:Math.random()*6,kind:Math.floor(Math.random()*3)});
 }
 function spawnPile(){S.obs.push({t:'pile',x:W+120,w:104,rings:[],rt:0});tip('⚠️ 前方在打樁，先換好氣',2.4);}
@@ -341,9 +377,10 @@ function update(dt){
     if(z.hab==='in'){placeEl.textContent='🛡 白海豚重要棲息環境';placeEl.classList.add('zone');}
     else{placeEl.textContent='📍 '+z.n;placeEl.classList.remove('zone');}
     placeEl.classList.add('show');placeT=3.4;
-    if(z.big){S.landTgt=Math.min(S.landTgt+.07,.32);S.murkTgt=.62;S.shake=.7;S.fillT=2.2;S.pileT=5;
-      tip('臺中港正在<span class="em">填海造陸</span>',2.8);}
-    else if(z.k==='ind'){S.landTgt=Math.min(S.landTgt+.035,.32);S.murkTgt=.55;S.shake=.45;S.pileT=Math.min(S.pileT,4);}
+    if(z.land!==undefined)S.landTgt=z.land;
+    if(z.big){S.murkTgt=.62;S.shake=.7;S.fillT=2.2;S.pileT=5;
+      tip('臺中港正在<span class="em">填海造陸</span>，家變小了',3);}
+    else if(z.k==='ind'){S.murkTgt=.55;S.shake=.45;S.pileT=Math.min(S.pileT,4);}
     else if(z.k==='river'){S.murkTgt=.12;tip('河口！這裡小魚最多',2.2);}
     else S.murkTgt=.2;}
   S.land=lerp(S.land,S.landTgt,Math.min(dt*1.4,1));
@@ -353,14 +390,16 @@ function update(dt){
   if(S.phase==='tut'){
     S.tutT+=dt;S.tutTotal+=dt;
     if(S.tut===0){tip('手指<span class="em">上下滑動</span>看看',9);
-      if(S.moved&&S.tutT>1.1){S.tut=1;S.tutT=0;hideTip();spawnSchool(6,'river');}}
-    else if(S.tut===1){if(S.tutT>2.5&&!S.obs.some(o=>o.t==='fish'))spawnSchool(6,'river');
-      if(S.fish>=3){S.tut=2;S.tutT=0;tip('好吃！多吃一點才會長大',2.2);}}
-    else if(S.tut===2){S.fishT-=dt;if(S.fishT<=0){S.fishT=2;spawnSchool(6,'river');}
-      if(S.air<.62){hintEl.classList.add('on');tip('空氣快沒了！',5);}}
+      if(S.moved&&S.tutT>1.1){S.tut=1;S.tutT=0;hideTip();S.air=Math.min(S.air,.42);}}
+    else if(S.tut===1){hintEl.classList.add('on');
+      tip('牠快沒空氣了！<span class="em">點左下角的圓鈕</span>',9);}
+    else if(S.tut===2){hintEl.classList.remove('on');
+      tip('太棒了！空氣快沒了就要換氣 🫧',2.6);
+      S.fishT-=dt;if(S.fishT<=0){S.fishT=2;spawnSchool(6,'river');}
+      if(S.fish>=3){S.tut=3;S.tutT=0;}}
     else{hideTip();hintEl.classList.remove('on');tip('前面開始有危險，小心！',2.2);
       S.phase='play';S.hazT=1.6;S.fishT=1.5;S.fillT=8;S.pileT=9;S.goldT=12;}
-    if(S.tutTotal>45){S.phase='play';S.hazT=1.6;S.fillT=8;S.pileT=9;}
+    if(S.tutTotal>60){S.phase='play';S.hazT=1.6;S.fillT=8;S.pileT=9;}
   } else {
     const Z=ZONES[S.zone],z=Z.k;
     S.fishT-=dt;
@@ -389,17 +428,23 @@ function update(dt){
 
   const ac=document.getElementById('airCircle'),C=2*Math.PI*45;
   ac.style.strokeDasharray=C;ac.style.strokeDashoffset=C*(1-Math.max(S.air,0));
+  document.getElementById('airPct').textContent=Math.max(0,Math.round(S.air*100))+'%';
   const bb=document.getElementById('bubbleBtn'),blk=S.noise>0||blockedAbove();
-  bb.classList.toggle('blocked',blk);bb.classList.toggle('urgent',S.air<.3&&!blk);
+  bb.classList.toggle('blocked',blk);bb.classList.toggle('urgent',S.air<.5&&!blk);
+  if(S.phase==='play'&&!blk&&S.air<.25&&!S.surf)hintEl.classList.add('on');
+  else if(S.phase==='play'&&(S.air>.45||blk))hintEl.classList.remove('on');
+  // 空氣變少時，海豚會一直吐泡泡往上飄（暗示要浮上去）
+  if(S.air<.45&&!S.surf&&Math.random()<dt*(1-S.air)*14)
+    S.spray.push({x:PX()+16,y:S.y*H-6,vx:6+Math.random()*10,vy:-46-Math.random()*26,a:1,up:1});
   if(!S.surf&&S.air<.3&&!blk)tip('快換氣！白海豚用<span class="em">肺</span>呼吸',2.4);
-  if(S.air<=0)return end('drown');
+  if(S.air<=0){ if(S.phase==='tut'){S.air=.06;} else return end('drown'); }
 
   if(!S.surf){
     if(S.y<S.land+.05){S.y=S.land+.05;S.landT++;
       if(S.landT===1||S.landT%220===0)tip('太靠岸了',2);}
     if(depth()>=DEEP_TRIG){
       S.y=depthToY(DEEP_TRIG);const before=S.deepTime;S.deepTime+=dt;
-      if(before<=0)tip('太深了！白海豚<span class="em">覺得不舒服</span>',2.6);
+      if(before<=0)tip('太深了！白海豚<span class="em">感覺不舒服</span>',2.6);
       if(S.deepTime>1.2)showAlert('⚠️ 快回淺水！'+Math.max(0,Math.ceil(DEEP_LIMIT-S.deepTime))+' 秒');
       if(S.deepTime>=DEEP_LIMIT)return end('deep');
     } else if(depth()<DEEP_TRIG-3){S.deepTime=Math.max(0,S.deepTime-dt*2);
@@ -436,8 +481,7 @@ function update(dt){
 
     if(hit){
       if(o.t==='fish'||o.t==='gold'){
-        if(S.noise>0){tip('太吵了，聲納失效吃不到魚',2);}
-        else if(o.t==='gold'){
+        if(o.t==='gold'){
           S.obs.splice(i,1);S.gold++;S.pops.push({x:o.x,y:oy,r:5,a:1,g:1});
           if(S.life<MAXHP){S.life++;tip('黃錫鯛！<span class="em">體力回復</span>',2.4);}
           else tip('黃錫鯛！好好吃',2);
@@ -483,7 +527,8 @@ function update(dt){
 
   if(S.inv>0)S.inv-=dt;
   for(let i=S.pops.length-1;i>=0;i--){const p=S.pops[i];p.r+=70*dt;p.a-=dt*1.7;if(p.a<=0)S.pops.splice(i,1);}
-  for(let i=S.spray.length-1;i>=0;i--){const s=S.spray[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.vy+=260*dt;s.a-=dt*1.3;if(s.a<=0)S.spray.splice(i,1);}
+  for(let i=S.spray.length-1;i>=0;i--){const s=S.spray[i];s.x+=s.vx*dt;s.y+=s.vy*dt;
+    if(!s.up)s.vy+=260*dt;s.a-=dt*(s.up?.9:1.3);if(s.a<=0)S.spray.splice(i,1);}
   S.bub.forEach(b=>{b.y-=b.s*dt;if(b.y<-6){b.y=H+6;b.x=Math.random()*W;}});
   if(S.dist>=GOAL)return end('home');
 }
@@ -495,7 +540,7 @@ function updHUD(){
     d.className='pip'+(i<S.life?'':' off');hp.appendChild(d);}
   const lo=TH[S.stage],hi=S.stage>=2?TH[2]:TH[S.stage+1];
   document.getElementById('growthFill').style.width=clamp(S.stage>=2?100:(S.fish-lo)/(hi-lo)*100,0,100)+'%';
-  document.getElementById('growthTxt').textContent=STAGES[S.stage]+'　🐟 '+S.fish+' / '+(S.stage>=2?200:hi);
+  document.getElementById('growthTxt').textContent=STAGES[S.stage]+'　🐟 '+S.fish+' / '+(S.stage>=2?350:hi);
 }
 
 function draw(){
@@ -556,7 +601,7 @@ function drawDeep(){
   for(let x=-10;x<W+20;x+=28)ctx.quadraticCurveTo(x+14,dy-10,x+28,dy);
   ctx.lineTo(W+20,H+16);ctx.lineTo(-10,H+16);ctx.fill();
   ctx.fillStyle='rgba(255,255,255,.62)';ctx.font='700 12px '+FF();ctx.textAlign='center';
-  ctx.fillText('太深囉 · 白海豚覺得不舒服',W/2,dy+28);ctx.textAlign='left';
+  ctx.fillText('太深了！白海豚感覺不舒服',W/2,dy+28);ctx.textAlign='left';
 }
 function rrect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
   ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
@@ -651,7 +696,6 @@ function drawObs(o){
   if(o.t==='fish'||o.t==='gold'){
     const bob=Math.sin(T*3+o.ph)*2,G=o.t==='gold';
     ctx.save();ctx.translate(o.x+(G?14:10),y+h/2+bob);
-    if(S.noise>0)ctx.globalAlpha=.45;
     if(G){const sc=1+Math.sin(T*4+o.ph)*.06;ctx.scale(sc,sc);
       ctx.strokeStyle='rgba(245,197,66,.5)';ctx.lineWidth=2;
       ctx.beginPath();ctx.arc(0,0,17,0,7);ctx.stroke();}
@@ -750,8 +794,16 @@ function dolphin(x,y){
   if(S.noise>.2)ctx.rotate((Math.random()-.5)*.12*S.noise);
   ctx.globalAlpha=blink?.4:1;
   const body=['#A8B6C0','#DDBCC6','#F79FB5'][S.stage],dark=['#8A99A5','#C79CA9','#E0708D'][S.stage];
+  const fl=Math.sin(performance.now()/190)*.22;
+  ctx.save();ctx.translate(-16,0);ctx.rotate(fl);
   ctx.fillStyle=dark;
-  ctx.beginPath();ctx.moveTo(-16,0);ctx.lineTo(-27,-11);ctx.lineTo(-24,0);ctx.lineTo(-27,11);ctx.closePath();ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(2,-3);
+  ctx.quadraticCurveTo(-10,-7,-23,-5);
+  ctx.quadraticCurveTo(-14,0,-23,5);
+  ctx.quadraticCurveTo(-10,7,2,3);
+  ctx.closePath();ctx.fill();
+  ctx.restore();
   ctx.fillStyle=body;
   ctx.beginPath();ctx.moveTo(26,1);ctx.quadraticCurveTo(20,-4,12,-7);
   ctx.quadraticCurveTo(-4,-13,-18,-6);ctx.quadraticCurveTo(-22,0,-18,6);
@@ -776,23 +828,124 @@ const E={
  drown:{t:'沒能浮上來換氣',s:'白海豚不是魚，牠跟人一樣用<span class="em">肺</span>呼吸，一定要浮出海面。'},
  deep:{t:'在深水待太久了',s:'牠一離開熟悉的淺灘，就找不到食物，也失去方向。'}
 };
+const CAUSE={
+ home :{i:'🎉',t:'抵達雲林臺西！',s:'你陪牠游完了整個重要棲息環境。'},
+ hurt :{i:'💔',t:'體力用完了',s:'一路上撞到太多刺網、垃圾和工程，牠撐不住了。'},
+ drown:{i:'🫧',t:'沒能浮上來換氣',s:'空氣用完了。白海豚一定要浮出海面呼吸。'},
+ deep :{i:'🌑',t:'在深水待太久',s:'牠離開了熟悉的淺灘，找不到食物，也失去方向。'}
+};
+const causeEl=document.getElementById('cause');
+let pendingResult=null;
+function showResult(){
+  if(!pendingResult)return;
+  causeEl.classList.remove('on');
+  document.getElementById('over').classList.remove('hidden');
+  document.getElementById('shareCanvasWrap').classList.remove('on');
+  document.getElementById('over').scrollTop=0;
+  pendingResult=null;
+}
+causeEl.addEventListener('click',showResult);
+
 function end(k){
-  S.run=false;const e=E[k];hideAlert();hintEl.classList.remove('on');
+  S.run=false;const e=E[k],c=CAUSE[k];
+  hideAlert();hintEl.classList.remove('on');hideTip();placeEl.classList.remove('show');
+  S.lastKind=k;
   document.getElementById('ovT').innerHTML=e.t;
   document.getElementById('ovS').innerHTML=e.s;
   document.getElementById('ovL').innerHTML=
-    '游到 <i>'+ZONES[Math.max(S.zone,0)].n+'</i><br>吃到的小魚 <i>'+S.fish+' / 200 隻</i><br>'+
+    '游到 <i>'+ZONES[Math.max(S.zone,0)].n+'</i><br>吃到的小魚 <i>'+S.fish+' / 350 隻</i><br>'+
     '吃到黃錫鯛 <i>'+S.gold+' 隻</i><br>長到 <i>'+STAGES[S.stage]+'</i><br>'+
     '繞過填海造陸 <i>'+S.fillPass+' 次</i><br>泡在打樁噪音裡 <i>'+S.noiseSec.toFixed(0)+' 秒</i><br>'+
-    '被漁網纏住 <i>'+S.netHit+' 次</i><br>被螺旋槳割傷 <i>'+S.propHit+' 次</i><br>'+
-    '吃到塑膠垃圾 <i>'+S.plasticHit+' 次</i>';
-  document.getElementById('over').classList.remove('hidden');
-  hideTip();placeEl.classList.remove('show');
+    '被漁網纏住 <i>'+S.netHit+' 次</i><br>吃到塑膠垃圾 <i>'+S.plasticHit+' 次</i>';
+  document.getElementById('cIcon').textContent=c.i;
+  document.getElementById('cTitle').textContent=c.t;
+  document.getElementById('cSub').textContent=c.s;
+  causeEl.classList.add('on');
+  pendingResult=k;
+  setTimeout(showResult,3200);
 }
+
+/* ===== 成績圖 ===== */
+function makeShareImage(){
+  const w=1000,h=1250,c=document.createElement('canvas');c.width=w;c.height=h;
+  const g=c.getContext('2d');
+  const bg=g.createLinearGradient(0,0,0,h);
+  bg.addColorStop(0,'#BFE7F2');bg.addColorStop(.45,'#6BC6DE');bg.addColorStop(1,'#2C82AC');
+  g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.fillStyle='rgba(255,255,255,.22)';
+  for(let i=0;i<40;i++){g.beginPath();g.arc(Math.random()*w,Math.random()*h,3+Math.random()*9,0,7);g.fill();}
+  g.fillStyle='#F7DFAF';g.fillRect(0,0,w,120);
+  g.fillStyle='#E7CD9A';g.fillRect(0,110,w,14);
+  const F=(sz,wt)=>(wt||800)+' '+sz+'px "PingFang TC","Noto Sans TC",sans-serif';
+  g.textAlign='center';
+  g.fillStyle='#5B4636';g.font=F(46,900);g.fillText('白海豚大冒險',w/2,78);
+  // 海豚
+  g.save();g.translate(w/2,300);g.scale(4.2,4.2);
+  g.fillStyle='#E0708D';
+  g.beginPath();g.moveTo(-14,-3);g.quadraticCurveTo(-26,-7,-39,-5);
+  g.quadraticCurveTo(-30,0,-39,5);g.quadraticCurveTo(-26,7,-14,3);g.closePath();g.fill();
+  g.fillStyle='#F79FB5';
+  g.beginPath();g.moveTo(26,1);g.quadraticCurveTo(20,-4,12,-7);
+  g.quadraticCurveTo(-4,-13,-18,-6);g.quadraticCurveTo(-22,0,-18,6);
+  g.quadraticCurveTo(-4,13,12,7);g.quadraticCurveTo(20,4,26,1);g.fill();
+  g.beginPath();g.moveTo(-1,-8);g.quadraticCurveTo(3,-19,10,-7);g.closePath();g.fill();
+  g.fillStyle='#E0708D';g.beginPath();g.moveTo(4,5);g.quadraticCurveTo(-2,16,8,8);g.closePath();g.fill();
+  g.fillStyle='#3F3128';g.beginPath();g.arc(17,-2,2.1,0,7);g.fill();
+  g.restore();
+  const c2=CAUSE[S.lastKind]||CAUSE.hurt;
+  g.fillStyle='#FFF';g.font=F(58,900);g.fillText(c2.i+' '+c2.t,w/2,500);
+  // 面板
+  const bx=90,by=560,bw=w-180,bh=430;
+  g.fillStyle='rgba(255,249,240,.94)';
+  g.beginPath();g.roundRect?g.roundRect(bx,by,bw,bh,40):g.rect(bx,by,bw,bh);g.fill();
+  const rows=[['游到',ZONES[Math.max(S.zone,0)].n],
+              ['吃到的小魚',S.fish+' / 350 隻'],
+              ['黃錫鯛',S.gold+' 隻'],
+              ['長到',STAGES[S.stage]],
+              ['繞過填海造陸',S.fillPass+' 次'],
+              ['泡在打樁噪音',S.noiseSec.toFixed(0)+' 秒']];
+  rows.forEach((r,i)=>{
+    const y=by+64+i*66;
+    g.textAlign='left';g.fillStyle='#8B7A69';g.font=F(30,700);g.fillText(r[0],bx+44,y);
+    g.textAlign='right';g.fillStyle='#5B4636';g.font=F(34,900);g.fillText(r[1],bx+bw-44,y);
+  });
+  g.textAlign='center';
+  g.fillStyle='#FFF';g.font=F(40,900);g.fillText('臺灣白海豚只剩不到 50 隻',w/2,1075);
+  g.fillStyle='rgba(255,255,255,.9)';g.font=F(28,700);
+  g.fillText('牠們游不遠也游不深，只有西海岸這片淺海可以去',w/2,1125);
+  g.fillStyle='#FF8A6B';
+  g.beginPath();g.roundRect?g.roundRect(w/2-260,1160,520,66,33):g.rect(w/2-260,1160,520,66);g.fill();
+  g.fillStyle='#fff';g.font=F(32,900);g.fillText('✍️ 加入連署 · 搶救極危白海豚',w/2,1203);
+  return c;
+}
+document.getElementById('shareImg').onclick=function(){
+  const c=makeShareImage(),url=c.toDataURL('image/png');
+  document.getElementById('shareImgEl').src=url;
+  document.getElementById('shareCanvasWrap').classList.add('on');
+  document.getElementById('shareCanvasWrap').scrollIntoView({behavior:'smooth',block:'center'});
+  if(navigator.canShare&&c.toBlob){
+    c.toBlob(b=>{
+      if(!b)return;
+      const f=new File([b],'白海豚大冒險.png',{type:'image/png'});
+      if(navigator.canShare({files:[f]}))
+        navigator.share({files:[f],title:'白海豚大冒險',text:'臺灣白海豚只剩不到 50 隻，你能陪牠游多遠？'}).catch(()=>{});
+    },'image/png');
+  }
+};
+document.getElementById('shareLink').onclick=function(){
+  const txt='我在《白海豚大冒險》吃到 '+S.fish+' 隻小魚，游到「'+ZONES[Math.max(S.zone,0)].n+'」。臺灣白海豚只剩不到 50 隻，你能游多遠？';
+  const url=location.href;
+  if(navigator.share){navigator.share({title:'白海豚大冒險',text:txt,url:url}).catch(()=>{});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(txt+' '+url).then(()=>{
+    this.textContent='✅ 已複製，貼給朋友吧！';setTimeout(()=>{this.textContent='🎯 找朋友來挑戰';},2200);});}
+};
+
 function start(){
   reset();updHUD();
+  causeEl.classList.remove('on');pendingResult=null;
   document.getElementById('intro').classList.add('hidden');
   document.getElementById('over').classList.add('hidden');
+  document.getElementById('shareCanvasWrap').classList.remove('on');
   countdown(()=>{S.run=true;});
 }
 document.getElementById('startBtn').onclick=start;
